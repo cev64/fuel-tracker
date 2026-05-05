@@ -569,6 +569,83 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* Burn & Deficit */
+  .burn-deficit-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .total-tile.burn { border-color: rgba(255,170,92,0.25); }
+
+  .burn-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--orange);
+    text-align: center;
+    padding: 0;
+    -webkit-appearance: none;
+  }
+
+  .burn-input::placeholder { color: var(--text3); font-size: 18px; font-weight: 400; font-family: 'DM Sans', sans-serif; }
+  .burn-input:focus { outline: none; }
+
+  .total-tile.deficit-none { border-color: var(--border); }
+  .total-tile.deficit-none .tile-val { color: var(--text3); }
+  .total-tile.deficit-pos { border-color: rgba(200,240,96,0.25); }
+  .total-tile.deficit-pos .tile-val { color: var(--accent); }
+  .total-tile.deficit-neg { border-color: rgba(255,90,90,0.25); }
+  .total-tile.deficit-neg .tile-val { color: var(--red); }
+
+  /* Weekly summaries */
+  .week-summaries {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .week-summaries-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 2px;
+  }
+
+  .week-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .week-label { font-size: 13px; color: var(--text2); }
+
+  .week-deficit-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .week-deficit-val.deficit { color: var(--accent); }
+  .week-deficit-val.surplus { color: var(--red); }
+  .week-deficit-val.none    { color: var(--text3); }
+
   /* Scrollbar */
   .tab-content::-webkit-scrollbar { width: 0; }
 </style>
@@ -637,6 +714,17 @@
       </div>
     </div>
 
+    <div class="burn-deficit-row">
+      <div class="total-tile burn">
+        <input class="burn-input" type="number" id="t-burn" placeholder="—" min="0" inputmode="decimal" onchange="setBurn()" />
+        <div class="tile-label">burned kcal</div>
+      </div>
+      <div class="total-tile deficit-none" id="deficit-tile">
+        <div class="tile-val" id="deficit-val">—</div>
+        <div class="tile-label">deficit</div>
+      </div>
+    </div>
+
     <div class="food-log-card">
       <div class="food-log-title">Items logged</div>
       <div id="food-list"></div>
@@ -663,6 +751,7 @@
       <div class="legend-item"><div class="legend-dot dot-p"></div> Protein</div>
       <div class="legend-item"><div class="legend-dot dot-f"></div> Fiber</div>
     </div>
+    <div class="week-summaries" id="week-summaries"></div>
   </div>
 </div>
 
@@ -670,6 +759,7 @@
 
 <script>
   let db = {};
+  let burns = {};
   let viewDate = new Date();
   let calMonth = new Date();
 
@@ -685,6 +775,93 @@
       const s = localStorage.getItem('fuel_v1');
       if (s) db = JSON.parse(s);
     } catch(e) {}
+  }
+  function saveBurns() {
+    try { localStorage.setItem('fuel_burns', JSON.stringify(burns)); } catch(e) {}
+  }
+  function loadBurns() {
+    try {
+      const s = localStorage.getItem('fuel_burns');
+      if (s) burns = JSON.parse(s);
+    } catch(e) {}
+  }
+
+  function setBurn() {
+    const key = fmtKey(viewDate);
+    const val = parseFloat(document.getElementById('t-burn').value) || 0;
+    if (val > 0) burns[key] = val;
+    else delete burns[key];
+    saveBurns();
+    renderDeficit();
+  }
+
+  function renderDeficit() {
+    const key = fmtKey(viewDate);
+    const consumed = (db[key] || []).reduce((s,i) => s+i.cal, 0);
+    const burn = burns[key] || 0;
+
+    document.getElementById('t-burn').value = burn || '';
+
+    const tile = document.getElementById('deficit-tile');
+    const val  = document.getElementById('deficit-val');
+
+    if (!burn) {
+      tile.className = 'total-tile deficit-none';
+      val.textContent = '—';
+      return;
+    }
+
+    const deficit = Math.round(burn - consumed);
+    val.textContent = (deficit >= 0 ? '+' : '') + deficit.toLocaleString();
+    tile.className = 'total-tile ' + (deficit >= 0 ? 'deficit-pos' : 'deficit-neg');
+  }
+
+  function renderWeeklySummaries(year, month) {
+    const firstDow = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const monthShort = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'short' });
+
+    const weeks = [];
+    let week = [];
+    for (let i = 0; i < firstDow; i++) week.push(null);
+    for (let d = 1; d <= daysInMonth; d++) {
+      week.push(d);
+      if (week.length === 7) { weeks.push(week); week = []; }
+    }
+    if (week.length > 0) weeks.push(week);
+
+    let html = '<div class="week-summaries-title">Weekly Deficit</div>';
+    for (const wk of weeks) {
+      const days = wk.filter(d => d !== null);
+      const startDay = days[0], endDay = days[days.length - 1];
+      const rangeLabel = startDay === endDay
+        ? `${monthShort} ${startDay}`
+        : `${monthShort} ${startDay}–${endDay}`;
+
+      let totalDeficit = 0, trackedDays = 0;
+      for (const d of days) {
+        const key = `${year}-${pad(month+1)}-${pad(d)}`;
+        const burn = burns[key] || 0;
+        if (!burn) continue;
+        const consumed = (db[key] || []).reduce((s,i) => s+i.cal, 0);
+        totalDeficit += burn - consumed;
+        trackedDays++;
+      }
+
+      let valHtml;
+      if (trackedDays === 0) {
+        valHtml = '<span class="week-deficit-val none">—</span>';
+      } else {
+        const rounded = Math.round(totalDeficit);
+        const cls  = rounded >= 0 ? 'deficit' : 'surplus';
+        const sign = rounded >= 0 ? '+' : '';
+        valHtml = `<span class="week-deficit-val ${cls}">${sign}${rounded.toLocaleString()} kcal</span>`;
+      }
+
+      html += `<div class="week-row"><span class="week-label">${rangeLabel}</span>${valHtml}</div>`;
+    }
+
+    document.getElementById('week-summaries').innerHTML = html;
   }
 
   function toast(msg) {
@@ -761,6 +938,7 @@
     const list = document.getElementById('food-list');
     if (!items.length) {
       list.innerHTML = `<div class="empty-state"><span class="empty-icon">🍽</span>Nothing logged yet</div>`;
+      renderDeficit();
       return;
     }
 
@@ -777,6 +955,8 @@
         <button class="btn-del" onclick="deleteItem('${key}', ${i.id})" aria-label="Delete">&#x2715;</button>
       </div>
     `).join('');
+
+    renderDeficit();
   }
 
   function changeMonth(dir) {
@@ -825,6 +1005,7 @@
     }
 
     document.getElementById('cal-days').innerHTML = html;
+    renderWeeklySummaries(year, month);
   }
 
   function goToDay(key) {
@@ -839,12 +1020,16 @@
 
   // Init
   load();
+  loadBurns();
   viewDate = new Date();
   renderToday();
   renderCalendar();
 
   document.getElementById('f-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') addFood();
+  });
+  document.getElementById('t-burn').addEventListener('keydown', e => {
+    if (e.key === 'Enter') e.target.blur();
   });
 </script>
 </body>
