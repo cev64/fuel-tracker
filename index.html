@@ -569,6 +569,116 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* Edit mode */
+  .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .btn-edit {
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text3);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .btn-edit:active { background: rgba(200,240,96,0.15); border-color: var(--accent); color: var(--accent); }
+
+  .food-item.editing {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .edit-name-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .edit-macros-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  .edit-macro-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    text-align: center;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+
+  .edit-macro-input:focus { border-color: var(--accent); }
+
+  .edit-btns { display: flex; gap: 6px; justify-content: flex-end; }
+
+  .btn-save-edit {
+    padding: 7px 18px;
+    background: var(--accent);
+    color: #0f0f0f;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel-edit {
+    padding: 7px 12px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  /* Add-to-day form */
+  .add-day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 12px;
+  }
+
+  .add-day-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+
   /* Burn & Deficit */
   .burn-deficit-row {
     display: grid;
@@ -729,6 +839,28 @@
       <div class="food-log-title">Items logged</div>
       <div id="food-list"></div>
     </div>
+
+    <div class="add-day-card">
+      <h2>Add item</h2>
+      <div class="input-group" style="margin-bottom:10px;">
+        <input type="text" id="d-name" placeholder="Food item" autocomplete="off" autocorrect="off" />
+      </div>
+      <div class="macros-grid" style="margin-bottom:12px;">
+        <div class="macro-input">
+          <span class="macro-label">Cals</span>
+          <input type="number" id="d-cal" placeholder="0" min="0" inputmode="decimal" />
+        </div>
+        <div class="macro-input">
+          <span class="macro-label">Protein g</span>
+          <input type="number" id="d-pro" placeholder="0" min="0" inputmode="decimal" />
+        </div>
+        <div class="macro-input">
+          <span class="macro-label">Fiber g</span>
+          <input type="number" id="d-fib" placeholder="0" min="0" inputmode="decimal" />
+        </div>
+      </div>
+      <button class="btn-submit" onclick="addFoodToDay()">Add to this day</button>
+    </div>
   </div>
 
   <!-- CALENDAR TAB -->
@@ -760,6 +892,7 @@
 <script>
   let db = {};
   let burns = {};
+  let editingId = null;
   let viewDate = new Date();
   let calMonth = new Date();
 
@@ -784,6 +917,53 @@
       const s = localStorage.getItem('fuel_burns');
       if (s) burns = JSON.parse(s);
     } catch(e) {}
+  }
+
+  function addFoodToDay() {
+    const name = document.getElementById('d-name').value.trim();
+    const cal  = parseFloat(document.getElementById('d-cal').value) || 0;
+    const pro  = parseFloat(document.getElementById('d-pro').value) || 0;
+    const fib  = parseFloat(document.getElementById('d-fib').value) || 0;
+    if (!name) { toast('Enter a food name'); return; }
+
+    const key = fmtKey(viewDate);
+    if (!db[key]) db[key] = [];
+    db[key].push({ id: Date.now(), name, cal, pro, fib });
+    save();
+
+    document.getElementById('d-name').value = '';
+    document.getElementById('d-cal').value  = '';
+    document.getElementById('d-pro').value  = '';
+    document.getElementById('d-fib').value  = '';
+    document.getElementById('d-name').focus();
+    toast('Added!');
+    renderToday();
+  }
+
+  function editItem(key, id) {
+    editingId = id;
+    renderToday();
+  }
+
+  function saveEdit(key, id) {
+    const name = document.getElementById('edit-name').value.trim();
+    const cal  = parseFloat(document.getElementById('edit-cal').value) || 0;
+    const pro  = parseFloat(document.getElementById('edit-pro').value) || 0;
+    const fib  = parseFloat(document.getElementById('edit-fib').value) || 0;
+    if (!name) { toast('Enter a food name'); return; }
+
+    if (!db[key]) return;
+    const item = db[key].find(i => i.id === id);
+    if (item) { item.name = name; item.cal = cal; item.pro = pro; item.fib = fib; }
+    save();
+    editingId = null;
+    renderToday();
+    toast('Updated!');
+  }
+
+  function cancelEdit() {
+    editingId = null;
+    renderToday();
   }
 
   function setBurn() {
@@ -909,6 +1089,7 @@
   }
 
   function changeDay(dir) {
+    editingId = null;
     viewDate = new Date(viewDate);
     viewDate.setDate(viewDate.getDate() + dir);
     renderToday();
@@ -942,8 +1123,22 @@
       return;
     }
 
-    list.innerHTML = items.map(i => `
-      <div class="food-item">
+    list.innerHTML = items.map(i => {
+      if (i.id === editingId) {
+        return `<div class="food-item editing">
+          <input type="text" id="edit-name" class="edit-name-input" value="${escHtml(i.name)}" autocomplete="off" autocorrect="off" />
+          <div class="edit-macros-row">
+            <input type="number" id="edit-cal" class="edit-macro-input" value="${i.cal}" placeholder="Cals" inputmode="decimal" />
+            <input type="number" id="edit-pro" class="edit-macro-input" value="${i.pro}" placeholder="Pro g" inputmode="decimal" />
+            <input type="number" id="edit-fib" class="edit-macro-input" value="${i.fib}" placeholder="Fib g" inputmode="decimal" />
+          </div>
+          <div class="edit-btns">
+            <button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>
+            <button class="btn-save-edit" onclick="saveEdit('${key}', ${i.id})">Save</button>
+          </div>
+        </div>`;
+      }
+      return `<div class="food-item">
         <div class="food-info">
           <div class="food-name">${escHtml(i.name)}</div>
           <div class="food-macros">
@@ -952,9 +1147,12 @@
             <span class="m-fib">${Math.round(i.fib)}g fiber</span>
           </div>
         </div>
-        <button class="btn-del" onclick="deleteItem('${key}', ${i.id})" aria-label="Delete">&#x2715;</button>
-      </div>
-    `).join('');
+        <div class="item-actions">
+          <button class="btn-edit" onclick="editItem('${key}', ${i.id})" aria-label="Edit">&#9998;</button>
+          <button class="btn-del" onclick="deleteItem('${key}', ${i.id})" aria-label="Delete">&#x2715;</button>
+        </div>
+      </div>`;
+    }).join('');
 
     renderDeficit();
   }
@@ -1027,6 +1225,9 @@
 
   document.getElementById('f-name').addEventListener('keydown', e => {
     if (e.key === 'Enter') addFood();
+  });
+  document.getElementById('d-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addFoodToDay();
   });
   document.getElementById('t-burn').addEventListener('keydown', e => {
     if (e.key === 'Enter') e.target.blur();
