@@ -57,6 +57,8 @@ import com.personal.fuel.ui.screens.today.TodayScreen
 import com.personal.fuel.ui.screens.today.TodaySummaryPane
 import com.personal.fuel.ui.theme.FuelTheme
 import com.personal.fuel.utilities.FuelFormat
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.rememberFuelHaptics
 import java.time.LocalDate
 
 /** Where a widget tap should land. */
@@ -396,11 +398,15 @@ private fun FuelBottomBar(
     current: FuelDestination,
     onSelect: (FuelDestination) -> Unit,
 ) {
+    val haptics = rememberFuelHaptics()
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         FuelDestination.entries.forEach { destination ->
             NavigationBarItem(
                 selected = current == destination,
-                onClick = { onSelect(destination) },
+                onClick = {
+                    haptics.perform(FuelHaptic.Light)
+                    onSelect(destination)
+                },
                 icon = { Icon(destination.icon, contentDescription = destination.label) },
                 label = { Text(destination.label, style = MaterialTheme.typography.labelMedium) },
                 colors = NavigationBarItemDefaults.colors(
@@ -420,6 +426,7 @@ private fun FuelNavRail(
     current: FuelDestination,
     onSelect: (FuelDestination) -> Unit,
 ) {
+    val haptics = rememberFuelHaptics()
     NavigationRail(
         containerColor = MaterialTheme.colorScheme.background,
         header = {
@@ -433,7 +440,10 @@ private fun FuelNavRail(
         FuelDestination.entries.forEach { destination ->
             NavigationRailItem(
                 selected = current == destination,
-                onClick = { onSelect(destination) },
+                onClick = {
+                    haptics.perform(FuelHaptic.Light)
+                    onSelect(destination)
+                },
                 icon = { Icon(destination.icon, contentDescription = destination.label) },
                 label = { Text(destination.label, style = MaterialTheme.typography.labelMedium) },
                 colors = NavigationRailItemDefaults.colors(

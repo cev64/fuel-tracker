@@ -33,6 +33,15 @@ tracked, plus a per-week deficit total. Tapping a day opens it.
 **Settings** — theme (system / light / dark), optional Android dynamic colour,
 and version information.
 
+**Haptics** — every button responds, with a four-level vocabulary so the phone
+tells you what happened before you have read the screen: a light tick for moving
+around (navigation, day and month arrows, calendar days), a firmer press for
+controls, a distinct confirm pattern when something is written (food logged,
+edit saved), and a reject pattern for deletes or a refused submit. Text fields
+have none — the keyboard already provides its own. Widget buttons buzz too. The
+phone's own touch-feedback settings, including Samsung's intensity slider, still
+apply.
+
 **Widgets** — see below.
 
 ### Widgets
@@ -134,11 +143,11 @@ Day-to-day, let GitHub build it:
 For a versioned build, tag a release:
 
 ```bash
-git tag v1.1.0 && git push origin v1.1.0
+git tag v1.2.0 && git push origin v1.2.0
 ```
 
 The **Android release** workflow builds, signs and verifies a release APK, then
-attaches `fuel-v1.1.0.apk` to the GitHub release. Bump `versionCode` and
+attaches `fuel-v1.2.0.apk` to the GitHub release. Bump `versionCode` and
 `versionName` in `app/build.gradle.kts` before tagging.
 
 ## How GitHub Actions works
@@ -181,8 +190,14 @@ file in the repository root (`storeFile`, `storePassword`, `keyAlias`,
 
 ## Required permissions
 
-None. The app declares no permissions at all — no network, no storage, no
-notifications.
+`VIBRATE` only — a normal, install-time permission with no runtime prompt.
+
+It is needed solely where haptics cannot be routed through a `View`: widget tap
+callbacks (which draw through the launcher) and the quick-log sheet launched by
+a widget button. Everything inside the app uses `View.performHapticFeedback`,
+which needs no permission.
+
+No network, no storage, no location, no notifications.
 
 ## External APIs
 
@@ -199,6 +214,11 @@ None. Nothing leaves the phone.
   sideloaded builds are as close to the tested debug build as possible; the APK
   is around 24 MB as a result. Keep rules are already written in
   `app/proguard-rules.pro` for when it is turned on.
+- **Widget haptics are approximations.** A widget cannot vibrate from the
+  launcher's process, so the buzz comes from this app's vibrator instead: the
+  one-tap re-log fires it directly, and a widget's + button hands it to the
+  quick-log sheet, which fires it as it opens. Expect a few milliseconds more
+  delay than an in-app button.
 - **Widget text uses the system font.** App widgets cannot load bundled fonts,
   so Syne and DM Sans appear in the app but not on the home screen.
 - **Dependencies are pinned to a known-good set.** Newer AndroidX and AGP

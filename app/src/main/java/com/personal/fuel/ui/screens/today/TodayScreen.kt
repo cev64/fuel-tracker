@@ -28,9 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,6 +47,8 @@ import com.personal.fuel.ui.components.SectionLabel
 import com.personal.fuel.ui.components.TotalsStrip
 import com.personal.fuel.ui.theme.FuelTheme
 import com.personal.fuel.utilities.FuelFormat
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.rememberFuelHaptics
 
 /**
  * The day view: totals, burn/deficit, the logged items, and an add form for the
@@ -212,7 +212,6 @@ private fun ItemsLoggedCard(
     onDelete: (FoodEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val haptics = LocalHapticFeedback.current
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -236,13 +235,9 @@ private fun ItemsLoggedCard(
                     onEdit = { onStartEdit(entry.id) },
                     onCancelEdit = onCancelEdit,
                     onSave = { name, calories, protein, fiber ->
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         onSaveEdit(entry, name, calories, protein, fiber)
                     },
-                    onDelete = {
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onDelete(entry)
-                    },
+                    onDelete = { onDelete(entry) },
                 )
                 if (index != state.entries.lastIndex) {
                     HorizontalDivider(thickness = 1.dp, color = FuelTheme.colors.border)
@@ -263,8 +258,10 @@ private fun AddToDayCard(
     var protein by rememberSaveable { mutableStateOf("") }
     var fiber by rememberSaveable { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-    val haptics = LocalHapticFeedback.current
+    val haptics = rememberFuelHaptics()
 
+    // The button itself gives the Confirm haptic on press; a rejected submit
+    // gets the distinct Reject pattern on top of it.
     val submit = {
         val added = onAdd(
             name,
@@ -273,12 +270,13 @@ private fun AddToDayCard(
             fiber.toDoubleOrNull() ?: 0.0,
         )
         if (added) {
-            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             name = ""
             calories = ""
             protein = ""
             fiber = ""
             focusManager.clearFocus()
+        } else {
+            haptics.perform(FuelHaptic.Reject)
         }
     }
 

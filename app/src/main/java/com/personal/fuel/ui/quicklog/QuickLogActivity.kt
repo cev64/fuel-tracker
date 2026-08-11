@@ -31,8 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +48,8 @@ import com.personal.fuel.ui.components.MacroFieldRow
 import com.personal.fuel.ui.components.SectionLabel
 import com.personal.fuel.ui.components.Wordmark
 import com.personal.fuel.ui.theme.FuelTheme
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.FuelVibration
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -65,6 +65,12 @@ class QuickLogActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val container = appContainer
+
+        // A widget button cannot vibrate from the launcher's process, so the
+        // press it represents is felt here instead, before the first frame.
+        if (intent?.getBooleanExtra(EXTRA_HAPTIC, false) == true) {
+            FuelVibration.perform(this, FuelHaptic.Press)
+        }
 
         setContent {
             val settingsViewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
@@ -86,6 +92,11 @@ class QuickLogActivity : ComponentActivity() {
             }
         }
     }
+
+    companion object {
+        /** Set by widget buttons so the tap is felt as well as seen. */
+        const val EXTRA_HAPTIC = "com.personal.fuel.extra.HAPTIC"
+    }
 }
 
 @Composable
@@ -101,7 +112,6 @@ private fun QuickLogSheet(
     var recents by remember { mutableStateOf<List<FoodTemplate>>(emptyList()) }
 
     val focusRequester = remember { FocusRequester() }
-    val haptics = LocalHapticFeedback.current
 
     LaunchedEffect(Unit) {
         recents = loadRecents()
@@ -110,7 +120,6 @@ private fun QuickLogSheet(
 
     val save = {
         if (name.isNotBlank()) {
-            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             onSave(
                 FoodEntry(
                     date = LocalDate.now(),

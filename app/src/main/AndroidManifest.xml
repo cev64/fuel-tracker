@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+      Normal, install-time permission. Needed only where haptics cannot be routed
+      through a View: widget tap callbacks and the sheet launched by a widget
+      button. In-app haptics use View.performHapticFeedback and need nothing.
+    -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:name=".FuelApp"
         android:allowBackup="true"

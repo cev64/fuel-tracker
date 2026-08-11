@@ -1073,7 +1073,8 @@ DataStore stores appearance preferences. No network access and no permissions.
 
 App widgets (Glance), deep links (`fuel://log`, `fuel://today`,
 `fuel://calendar`), a floating quick-log activity launched from a widget,
-haptics on log/save/delete, WorkManager for the daily widget refresh, native
+haptics on every button in both the app and the widgets (four-level
+`FuelHaptic` vocabulary), WorkManager for the daily widget refresh, native
 splash screen, adaptive/monochrome launcher icon.
 
 Not used yet: notifications, Quick Settings tiles, share sheet, camera,

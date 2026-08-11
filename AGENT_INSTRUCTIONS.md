@@ -49,6 +49,19 @@ appearance preferences. No network, no permissions.
   `AppContainer.applicationScope`, never on a `viewModelScope` that is about to
   be cancelled.
 
+## Haptics
+
+- Every button gives feedback. Use `rememberFuelHaptics()` and the `FuelHaptic`
+  vocabulary — `Light` to move, `Press` for a control, `Confirm` when something
+  is written, `Reject` when something is removed or refused.
+- Fire the haptic inside the shared component (`FuelButton`, `FuelTextButton`,
+  `CircleIconButton`), not at the call site, so nothing double-buzzes. The only
+  call-site haptics are outcomes the component cannot know about, such as a
+  submit rejected for a blank name.
+- Text fields get none; the keyboard already provides its own.
+- Where there is no `View` — widget callbacks, an Activity launched by a widget
+  button — use `FuelVibration` instead, which mirrors the same four levels.
+
 ## The three-layout rule
 
 Every new screen must answer all three, as the master instructions require:
