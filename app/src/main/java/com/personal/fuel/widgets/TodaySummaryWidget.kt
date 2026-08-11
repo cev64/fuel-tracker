@@ -28,6 +28,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.personal.fuel.appContainer
 import com.personal.fuel.domain.model.DaySummary
+import com.personal.fuel.domain.model.WidgetBackground
 import com.personal.fuel.domain.model.FoodEntry
 import com.personal.fuel.ui.navigation.FuelDestination
 import com.personal.fuel.utilities.FuelFormat
@@ -45,12 +46,14 @@ class TodaySummaryWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val repository = context.appContainer.repository
+        val container = context.appContainer
+        val repository = container.repository
+        val background = container.settingsRepository.currentWidgetBackground()
         val today = LocalDate.now()
         val summary = repository.getDaySummary(today)
         val entries = repository.getEntries(today)
 
-        provideContent { TodaySummaryContent(summary = summary, entries = entries) }
+        provideContent { TodaySummaryContent(summary, entries, background) }
     }
 }
 
@@ -59,7 +62,11 @@ class TodaySummaryWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 @Composable
-private fun TodaySummaryContent(summary: DaySummary, entries: List<FoodEntry>) {
+private fun TodaySummaryContent(
+    summary: DaySummary,
+    entries: List<FoodEntry>,
+    background: WidgetBackground,
+) {
     val context = LocalContext.current
     val size = LocalSize.current
     val compact = size.height < FuelWidgetSizes.Medium.height
@@ -69,6 +76,7 @@ private fun TodaySummaryContent(summary: DaySummary, entries: List<FoodEntry>) {
     FuelWidgetSurface(
         modifier = GlanceModifier.fillMaxSize(),
         onClick = openAppAction(context, FuelDestination.Today),
+        background = background,
     ) {
         Column(modifier = GlanceModifier.fillMaxSize()) {
             Row(
@@ -157,7 +165,7 @@ private fun TodaySummaryContent(summary: DaySummary, entries: List<FoodEntry>) {
                     )
                 } else {
                     entries.takeLast(itemSlots).reversed().forEach { entry ->
-                        LoggedItemRow(entry = entry)
+                        LoggedItemRow(entry = entry, background = background)
                         Spacer(modifier = GlanceModifier.height(5.dp))
                     }
                 }
@@ -167,11 +175,11 @@ private fun TodaySummaryContent(summary: DaySummary, entries: List<FoodEntry>) {
 }
 
 @Composable
-private fun LoggedItemRow(entry: FoodEntry) {
+private fun LoggedItemRow(entry: FoodEntry, background: WidgetBackground) {
     Row(
         modifier = GlanceModifier
             .fillMaxWidth()
-            .background(FuelGlanceColors.surface)
+            .background(background.rowSurface())
             .cornerRadius(10.dp)
             .padding(horizontal = 10.dp, vertical = 7.dp),
         verticalAlignment = Alignment.Vertical.CenterVertically,

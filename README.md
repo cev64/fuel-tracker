@@ -30,8 +30,9 @@ inline), and an add form for that specific day.
 **Calendar** — a month grid showing each day's calories and which macros were
 tracked, plus a per-week deficit total. Tapping a day opens it.
 
-**Settings** — theme (system / light / dark), optional Android dynamic colour,
-and version information.
+**Settings** — daily goals for calories, protein and fiber (what the ring widget
+fills against), widget style, theme (system / light / dark), optional Android
+dynamic colour, and version information.
 
 **Haptics** — every button responds, with a four-level vocabulary so the phone
 tells you what happened before you have read the screen: a light tick for moving
@@ -46,10 +47,11 @@ apply.
 
 ### Widgets
 
-Three home-screen widgets, all built with Jetpack Glance, all resizable:
+Four home-screen widgets, all built with Jetpack Glance, all resizable:
 
 | Widget | Size | What it does |
 | --- | --- | --- |
+| **Fuel · Rings** | 4x2 to 5x4 | Calories, protein and fiber as progress rings against your daily goals, with the quick-add button. Past a goal the ring starts a second, lighter lap. Taller cells add a burned/deficit line and a full-width **+ Add food** button. |
 | **Fuel · Macros** | 3x1 to 4x3 | The compact one. Today's calories, protein and fiber, plus a round **+** button that opens the add-food sheet. Tapping the numbers opens Today. |
 | **Fuel · Quick Log** | 4x2 | The Log screen on the home screen. Today's totals, an **Add food** button that opens a quick-log sheet over the home screen, and recently logged foods that are re-logged to today with a single tap. |
 | **Fuel · Today** | 4x2 | Today's calories, protein, fiber, burned and deficit. At larger sizes it also lists the most recent items logged. Tapping it opens the Today screen. |
@@ -64,7 +66,18 @@ any figure. Two rows or taller, it switches layout: calories large on their own
 line with the button beside them, protein and fiber underneath — roughly double
 the type size of the single-row form.
 
+Rings is sized the same way, and switches to a taller layout with a full-width
+button once the cell has room for one. Its rings are drawn to a bitmap and
+handed to `Image`, because Glance has no canvas — a widget is `RemoteViews`
+underneath, so anything that is not a box, a row or text has to arrive as an
+image.
+
 Widget taps deep-link into the relevant screen rather than just opening the app.
+
+**Widget style** — Settings offers **Solid** (the Fuel card) or **Transparent**
+(wallpaper shows through), applied to all four widgets. Transparent keeps a
+light scrim, and darkens the ring track rather than lightening it, so the
+figures stay readable over a bright or busy wallpaper.
 
 **A note on typing in widgets:** Android does not allow text input inside an app
 widget — a widget renders through `RemoteViews`, which has no editable field. So
@@ -162,11 +175,11 @@ Day-to-day, let GitHub build it:
 For a versioned build, tag a release:
 
 ```bash
-git tag v1.3.0 && git push origin v1.3.0
+git tag v1.4.0 && git push origin v1.4.0
 ```
 
 The **Android release** workflow builds, signs and verifies a release APK, then
-attaches `fuel-v1.3.0.apk` to the GitHub release. Bump `versionCode` and
+attaches `fuel-v1.4.0.apk` to the GitHub release. Bump `versionCode` and
 `versionName` in `app/build.gradle.kts` before tagging.
 
 ## How GitHub Actions works
@@ -246,8 +259,8 @@ None. Nothing leaves the phone.
 ## Planned features
 
 - Import the existing PWA log (`fuel_v1` / `fuel_burns` JSON) into Room.
-- Daily calorie/protein/fiber goals, with widget progress against them.
+- Show the same rings inside the app on the Today screen.
+- Per-widget style, rather than one setting shared by all of them.
 - A widget for the selected day rather than only today.
-- Daily goals shown as progress on the Macros widget.
 - Optional reminder notifications.
 - Turn on R8 for release builds.

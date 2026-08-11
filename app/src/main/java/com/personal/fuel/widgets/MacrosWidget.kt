@@ -35,6 +35,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.personal.fuel.appContainer
 import com.personal.fuel.domain.model.DaySummary
+import com.personal.fuel.domain.model.WidgetBackground
 import com.personal.fuel.ui.navigation.FuelDestination
 import com.personal.fuel.utilities.FuelFormat
 import java.time.LocalDate
@@ -58,8 +59,10 @@ class MacrosWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val summary = context.appContainer.repository.getDaySummary(LocalDate.now())
-        provideContent { MacrosContent(summary) }
+        val container = context.appContainer
+        val summary = container.repository.getDaySummary(LocalDate.now())
+        val background = container.settingsRepository.currentWidgetBackground()
+        provideContent { MacrosContent(summary, background) }
     }
 }
 
@@ -73,7 +76,7 @@ private const val FIGURE_EMS = 3.2f
 private const val PADDING = 14f
 
 @Composable
-private fun MacrosContent(summary: DaySummary) {
+private fun MacrosContent(summary: DaySummary, background: WidgetBackground) {
     val size = LocalSize.current
     val width = size.width.value
     val height = size.height.value
@@ -81,6 +84,7 @@ private fun MacrosContent(summary: DaySummary) {
     FuelWidgetSurface(
         modifier = GlanceModifier.fillMaxSize(),
         contentPadding = PADDING.dp,
+        background = background,
     ) {
         if (height >= 100f) {
             StackedMacros(summary = summary, width = width, height = height)

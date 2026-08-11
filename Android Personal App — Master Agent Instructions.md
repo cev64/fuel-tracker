@@ -1082,6 +1082,8 @@ location, biometrics.
 
 ## Widgets
 
+- **Fuel · Rings** — calories, protein and fiber as progress rings against
+  daily goals, with the quick-add button.
 - **Fuel · Macros** — compact single row: today's calories, protein and fiber
   with a plus button that opens the quick-log sheet.
 - **Fuel · Quick Log** — the Log screen on the home screen: today's totals, an
@@ -1090,7 +1092,8 @@ location, biometrics.
 - **Fuel · Today** — today's calories, protein, fiber, burned and deficit, plus
   recent items at larger sizes.
 
-All three use `SizeMode.Responsive` and deep-link into the app. Android does not allow text input inside a widget, so typing always happens
+All four deep-link into the app, and follow the Solid/Transparent widget style
+set in the app. Android does not allow text input inside a widget, so typing always happens
 in the quick-log sheet.
 
 ## Notifications

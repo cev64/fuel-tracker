@@ -36,6 +36,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.personal.fuel.appContainer
 import com.personal.fuel.domain.model.DaySummary
+import com.personal.fuel.domain.model.WidgetBackground
 import com.personal.fuel.domain.model.FoodEntry
 import com.personal.fuel.domain.model.FoodTemplate
 import com.personal.fuel.ui.navigation.FuelDestination
@@ -63,12 +64,14 @@ class QuickLogWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val repository = context.appContainer.repository
+        val container = context.appContainer
+        val repository = container.repository
+        val background = container.settingsRepository.currentWidgetBackground()
         val today = LocalDate.now()
         val summary = repository.getDaySummary(today)
         val recents = repository.getRecentFoods(MAX_RECENTS)
 
-        provideContent { QuickLogContent(summary = summary, recents = recents) }
+        provideContent { QuickLogContent(summary, recents, background) }
     }
 
     private companion object {
@@ -81,7 +84,11 @@ class QuickLogWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 @Composable
-private fun QuickLogContent(summary: DaySummary, recents: List<FoodTemplate>) {
+private fun QuickLogContent(
+    summary: DaySummary,
+    recents: List<FoodTemplate>,
+    background: WidgetBackground,
+) {
     val context = LocalContext.current
     val size = LocalSize.current
     val compact = size.height < FuelWidgetSizes.Medium.height
@@ -91,7 +98,7 @@ private fun QuickLogContent(summary: DaySummary, recents: List<FoodTemplate>) {
         else -> 5
     }
 
-    FuelWidgetSurface(modifier = GlanceModifier.fillMaxSize()) {
+    FuelWidgetSurface(modifier = GlanceModifier.fillMaxSize(), background = background) {
         Column(modifier = GlanceModifier.fillMaxSize()) {
             Row(
                 modifier = GlanceModifier
@@ -158,7 +165,7 @@ private fun QuickLogContent(summary: DaySummary, recents: List<FoodTemplate>) {
                 )
                 Spacer(modifier = GlanceModifier.height(6.dp))
                 recents.take(recentSlots).forEach { template ->
-                    RecentFoodRow(template = template)
+                    RecentFoodRow(template = template, background = background)
                     Spacer(modifier = GlanceModifier.height(6.dp))
                 }
             }
@@ -189,11 +196,11 @@ private fun AddFoodButton(context: Context) {
 }
 
 @Composable
-private fun RecentFoodRow(template: FoodTemplate) {
+private fun RecentFoodRow(template: FoodTemplate, background: WidgetBackground) {
     Row(
         modifier = GlanceModifier
             .fillMaxWidth()
-            .background(FuelGlanceColors.surface)
+            .background(background.rowSurface())
             .cornerRadius(10.dp)
             .padding(horizontal = 10.dp, vertical = 8.dp)
             .clickable(
