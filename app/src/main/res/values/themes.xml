@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Compose draws everything; this theme only controls the window itself.
+      The window background matches the Fuel canvas so there is no flash of a
+      different colour between the splash screen and the first frame.
+    -->
+    <style name="Theme.Fuel" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/fuel_background</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+    </style>
+
+    <style name="Theme.Fuel.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/fuel_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Fuel</item>
+    </style>
+
+    <!-- The widget's quick-log sheet floats over whatever is behind it. -->
+    <style name="Theme.Fuel.QuickLog" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
+    </style>
+
+</resources>

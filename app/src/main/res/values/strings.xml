@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fuel</string>
+
+    <string name="widget_quick_log_label">Fuel · Quick Log</string>
+    <string name="widget_quick_log_description">Add food to today without opening the app, and re-log recent foods with one tap.</string>
+
+    <string name="widget_today_label">Fuel · Today</string>
+    <string name="widget_today_description">Today\'s calories, protein, fiber and deficit at a glance.</string>
+</resources>
