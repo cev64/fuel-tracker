@@ -2,6 +2,7 @@ package com.personal.fuel
 
 import android.app.Application
 import android.content.Context
+import com.personal.fuel.data.backup.FuelBackupManager
 import com.personal.fuel.data.local.FuelDatabase
 import com.personal.fuel.data.prefs.SettingsRepository
 import com.personal.fuel.data.repository.FuelRepositoryImpl
@@ -33,6 +34,10 @@ class AppContainer(context: Context) {
 
     val settingsRepository: SettingsRepository by lazy {
         SettingsRepository(appContext, widgetNotifier)
+    }
+
+    val backupManager: FuelBackupManager by lazy {
+        FuelBackupManager(appContext, database.fuelDao(), settingsRepository, widgetNotifier)
     }
 
     /** For work that must outlive a screen, such as widget-triggered writes. */

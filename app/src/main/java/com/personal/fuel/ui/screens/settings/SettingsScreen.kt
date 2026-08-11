@@ -1,5 +1,6 @@
 package com.personal.fuel.ui.screens.settings
 
+import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +38,7 @@ import com.personal.fuel.domain.model.ThemeMode
 import com.personal.fuel.domain.model.WidgetBackground
 import com.personal.fuel.ui.components.FuelButton
 import com.personal.fuel.ui.components.FuelCard
+import com.personal.fuel.ui.components.FuelTextButton
 import com.personal.fuel.ui.components.MacroFieldRow
 import com.personal.fuel.ui.components.SectionLabel
 import com.personal.fuel.utilities.FuelFormat
@@ -50,6 +54,9 @@ fun SettingsScreen(
     onDynamicColorChange: (Boolean) -> Unit,
     onWidgetBackgroundChange: (WidgetBackground) -> Unit,
     onGoalsChange: (DailyGoals) -> Unit,
+    onExport: (Uri) -> Unit,
+    onRestore: (Uri) -> Unit,
+    backupFileName: () -> String,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -158,6 +165,12 @@ fun SettingsScreen(
             )
         }
 
+        BackupCard(
+            onExport = onExport,
+            onRestore = onRestore,
+            backupFileName = backupFileName,
+        )
+
         FuelCard {
             SectionLabel("About")
             Spacer(Modifier.height(12.dp))
@@ -165,6 +178,63 @@ fun SettingsScreen(
             AboutRow("Package", BuildConfig.APPLICATION_ID)
             AboutRow("Storage", "On-device only")
         }
+    }
+}
+
+/**
+ * Export and restore.
+ *
+ * Uses the storage access framework, so the file goes wherever the user picks
+ * and no storage permission is needed.
+ */
+@Composable
+private fun BackupCard(
+    onExport: (Uri) -> Unit,
+    onRestore: (Uri) -> Unit,
+    backupFileName: () -> String,
+    modifier: Modifier = Modifier,
+) {
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json"),
+    ) { uri -> uri?.let(onExport) }
+
+    val restoreLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri -> uri?.let(onRestore) }
+
+    FuelCard(modifier = modifier) {
+        SectionLabel("Backup")
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = "Save the whole log to a file, and put it back afterwards. " +
+                "Worth doing before reinstalling.",
+            style = MaterialTheme.typography.bodySmall,
+            color = FuelTheme.colors.textSecondary,
+        )
+        Spacer(Modifier.height(14.dp))
+        FuelButton(
+            text = "Export to file",
+            onClick = { exportLauncher.launch(backupFileName()) },
+        )
+        Spacer(Modifier.height(8.dp))
+        FuelTextButton(
+            text = "Restore from file",
+            onClick = {
+                // Some file pickers report JSON as plain text or octet-stream.
+                restoreLauncher.launch(
+                    arrayOf("application/json", "text/plain", "application/octet-stream")
+                )
+            },
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(vertical = 14.dp),
+        )
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = "Restoring replaces everything currently logged. A backup exported " +
+                "from the web version of Fuel works here too.",
+            style = MaterialTheme.typography.bodySmall,
+            color = FuelTheme.colors.textTertiary,
+        )
     }
 }
 

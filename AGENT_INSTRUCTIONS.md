@@ -100,6 +100,13 @@ against the window sizes a Fold produces. Change them there, not inline.
   `LocalSize`, capping against both width and height so nothing overflows.
 - Check a new widget at 2x1, 4x1, 2x2 and 4x2 before calling it done.
 
+## Signing
+
+Every APK, debug included, must be signed with the persistent keystore. An
+identity change forces an uninstall, and an uninstall destroys the user's log.
+Do not add an `applicationIdSuffix` or let a build type fall back to the
+generated debug key in CI.
+
 ## Before finishing a change
 
 ```bash

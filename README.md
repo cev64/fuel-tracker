@@ -30,6 +30,9 @@ inline), and an add form for that specific day.
 **Calendar** — a month grid showing each day's calories and which macros were
 tracked, plus a per-week deficit total. Tapping a day opens it.
 
+**Backup** — export the whole log to a JSON file and restore it later. A backup
+exported from the original web app (`fuel_v1` / `fuel_burns`) imports directly.
+
 **Settings** — daily goals for calories, protein and fiber (what the ring widget
 fills against), widget style, theme (system / light / dark), optional Android
 dynamic colour, and version information.
@@ -175,11 +178,11 @@ Day-to-day, let GitHub build it:
 For a versioned build, tag a release:
 
 ```bash
-git tag v1.4.0 && git push origin v1.4.0
+git tag v1.5.0 && git push origin v1.5.0
 ```
 
 The **Android release** workflow builds, signs and verifies a release APK, then
-attaches `fuel-v1.4.0.apk` to the GitHub release. Bump `versionCode` and
+attaches `fuel-v1.5.0.apk` to the GitHub release. Bump `versionCode` and
 `versionName` in `app/build.gradle.kts` before tagging.
 
 ## How GitHub Actions works
@@ -194,9 +197,16 @@ tests, signed release APK, `apksigner` verification, attached to the release.
 
 ### APK signing
 
-Release builds must keep the same signing identity forever — Android refuses to
-install an update signed with a different key. Create the keystore once, back it
-up somewhere safe, and never commit it:
+**Every** build — debug included — must use the same signing key, or the APK
+will not install over an existing Fuel install.
+
+Android refuses to update an app when the signature changes, and a CI runner is
+a fresh machine each time: left to itself it generates a throwaway debug key per
+build, so each APK is signed by a different identity. That is what forces an
+uninstall, and an uninstall takes the log with it. With the secrets below set,
+CI signs every APK with the one persistent key and updates install over the top.
+
+Create the keystore once, back it up somewhere safe, and never commit it:
 
 ```bash
 keytool -genkeypair -v -keystore fuel-release.jks -alias fuel \
@@ -213,8 +223,14 @@ Then add four repository secrets (Settings → Secrets and variables → Actions
 | `FUEL_KEY_ALIAS` | `fuel` |
 | `FUEL_KEY_PASSWORD` | key password |
 
-The release workflow fails loudly if the keystore secret is missing rather than
-publishing an APK signed with a debug key.
+The release workflow fails if the keystore secret is missing rather than
+publishing an APK signed with a throwaway key. The build workflow still produces
+a debug APK without it, but prints a warning on the run: that APK will only
+install after an uninstall.
+
+Debug and release share one application ID (`com.personal.fuel`) so there is a
+single Fuel app on the phone and either kind of APK updates the other. Debug
+builds are marked `-debug` in Settings → About.
 
 To build a signed release locally, put the same values in a `keystore.properties`
 file in the repository root (`storeFile`, `storePassword`, `keyAlias`,
@@ -235,11 +251,16 @@ No network, no storage, no location, no notifications.
 
 None. Nothing leaves the phone.
 
-## Known limitations
+## Backing up and restoring
 
-- **Existing PWA data is not imported yet.** The Android app starts with an
-  empty database; the web version keeps its own data in browser storage. An
-  import path is planned (see below).
+Settings → Backup → **Export to file** writes everything — every logged item,
+every burn, and the goals — to a JSON file wherever you choose to save it.
+**Restore from file** puts it back, replacing whatever is currently logged.
+
+Worth doing before any reinstall. The same screen imports a backup taken from
+the web version of Fuel.
+
+## Known limitations
 - **Widgets cannot accept typed input.** This is an Android platform limit, not
   a shortcut — see the note under Widgets.
 - **Release builds are not minified.** R8 is switched off for now so the first
@@ -258,7 +279,6 @@ None. Nothing leaves the phone.
 
 ## Planned features
 
-- Import the existing PWA log (`fuel_v1` / `fuel_burns` JSON) into Room.
 - Show the same rings inside the app on the Today screen.
 - Per-widget style, rather than one setting shared by all of them.
 - A widget for the selected day rather than only today.

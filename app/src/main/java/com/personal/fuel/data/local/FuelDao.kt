@@ -3,6 +3,7 @@ package com.personal.fuel.data.local
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
@@ -56,6 +57,33 @@ interface FuelDao {
 
     @Query("DELETE FROM food_entries WHERE id = :id")
     suspend fun deleteEntry(id: Long)
+
+    @Query("SELECT * FROM food_entries ORDER BY dateKey ASC, createdAt ASC")
+    suspend fun getAllEntries(): List<FoodEntryEntity>
+
+    @Query("SELECT * FROM day_burns ORDER BY dateKey ASC")
+    suspend fun getAllBurns(): List<DayBurnEntity>
+
+    @Insert
+    suspend fun insertEntries(entries: List<FoodEntryEntity>)
+
+    @Upsert
+    suspend fun upsertBurns(burns: List<DayBurnEntity>)
+
+    @Query("DELETE FROM food_entries")
+    suspend fun deleteAllEntries()
+
+    @Query("DELETE FROM day_burns")
+    suspend fun deleteAllBurns()
+
+    /** Restores a backup atomically: a failed import must not leave a half log. */
+    @Transaction
+    suspend fun replaceAll(entries: List<FoodEntryEntity>, burns: List<DayBurnEntity>) {
+        deleteAllEntries()
+        deleteAllBurns()
+        insertEntries(entries)
+        upsertBurns(burns)
+    }
 
     @Upsert
     suspend fun upsertBurn(burn: DayBurnEntity)

@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -42,6 +43,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.merge
 import com.personal.fuel.ui.components.FuelCard
 import com.personal.fuel.ui.components.FuelToastHost
 import com.personal.fuel.ui.components.SectionLabel
@@ -278,6 +280,9 @@ fun FuelRoot(
                                 onDynamicColorChange = settingsViewModel::setDynamicColor,
                                 onWidgetBackgroundChange = settingsViewModel::setWidgetBackground,
                                 onGoalsChange = settingsViewModel::setGoals,
+                                onExport = settingsViewModel::exportTo,
+                                onRestore = settingsViewModel::restoreFrom,
+                                backupFileName = settingsViewModel::defaultBackupFileName,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .widthIn(max = 640.dp),
@@ -289,7 +294,9 @@ fun FuelRoot(
             }
 
             FuelToastHost(
-                messages = viewModel.messages,
+                messages = remember(viewModel, settingsViewModel) {
+                    merge(viewModel.messages, settingsViewModel.messages)
+                },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(innerPadding)

@@ -42,8 +42,8 @@ android {
         applicationId = "com.personal.fuel"
         minSdk = 30
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.4.0"
+        versionCode = 6
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resourceConfigurations += listOf("en")
@@ -62,8 +62,19 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            // No applicationIdSuffix, and the same signing identity as release:
+            // there is one Fuel app on the phone, and any APK updates any other
+            // without an uninstall. An uninstall is what loses the log.
             versionNameSuffix = "-debug"
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                // Local builds only. Android's generated debug key differs from
+                // machine to machine, so an APK signed with it cannot update an
+                // install signed by any other machine — which is exactly what
+                // ephemeral CI runners produce.
+                signingConfigs.getByName("debug")
+            }
         }
         release {
             // Kept off deliberately: this is a personal sideloaded app where a
@@ -140,6 +151,8 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    // Real org.json so the backup format can be tested off-device.
+    testImplementation(libs.json)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

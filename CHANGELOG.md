@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.5.0
+
+### Fixed
+
+- **APK updates no longer require an uninstall.** Debug builds were signed with
+  Android's generated debug key, which a CI runner regenerates on every build,
+  so each APK carried a different signing identity and Android rejected it as an
+  update. Both build types now use the persistent keystore when it is available,
+  and the build workflow decodes it from the same secret the release workflow
+  uses, warning on the run if it is missing.
+- Debug and release now share one application ID (`com.personal.fuel`); the
+  `.debug` suffix meant a release build would have installed as a second,
+  separate app with its own empty log. Debug builds stay identifiable through
+  the `-debug` version name in Settings → About.
+
+### Added
+
+- **Backup**: export the whole log — items, burns and goals — to a JSON file,
+  and restore it. Uses the storage access framework, so the file goes wherever
+  you choose and no storage permission is involved.
+- The restore path also accepts the original web app's stored data
+  (`fuel_v1` / `fuel_burns`), so the PWA history can be brought across.
+- Unit tests for the backup format: round trip, the web app's shape, malformed
+  rows, and unreadable files.
+
+### Notes
+
+- Restoring replaces the current log rather than merging, so importing the same
+  file twice cannot silently double every item.
+
 ## 1.4.0
 
 ### Added
