@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -75,12 +76,13 @@ fun openAppAction(context: Context, destination: FuelDestination): Action =
 fun FuelWidgetSurface(
     modifier: GlanceModifier = GlanceModifier,
     onClick: Action? = null,
+    contentPadding: Dp = 14.dp,
     content: @Composable () -> Unit,
 ) {
     val base = modifier
         .background(FuelGlanceColors.background)
         .cornerRadius(24.dp)
-        .padding(14.dp)
+        .padding(contentPadding)
     Box(modifier = if (onClick != null) base.clickable(onClick) else base) {
         content()
     }
