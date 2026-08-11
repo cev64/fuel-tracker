@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -69,6 +70,7 @@ fun CalendarScreen(
             .verticalScroll(rememberScrollState())
             .padding(contentPadding),
         verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         MonthNavigator(state = state, onShiftMonth = onShiftMonth)
         MonthGrid(state = state, selectedDate = selectedDate, onSelectDate = onSelectDate)
@@ -129,6 +131,9 @@ private fun MonthGrid(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            // Square cells across a 7-column grid would otherwise grow enormous
+            // on the inner display and in landscape.
+            .widthIn(max = 560.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, FuelTheme.colors.border, RoundedCornerShape(16.dp))

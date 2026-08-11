@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.3.0
+
+### Changed
+
+- The Macros widget is now sized from the cell it actually occupies
+  (`SizeMode.Exact`) instead of matching one of three fixed breakpoints, which
+  meant a 4x2 cell drew the same small figures as a 4x1 and left most of the
+  widget empty. Two rows tall or more it switches to a stacked layout —
+  calories large on their own line with the button beside them, protein and
+  fiber underneath — roughly doubling the type size in a 4x2 slot.
+- Raised the Macros widget's resize ceiling from 120dp to 320dp; the old value
+  was below two rows on a large phone.
+- App layout now follows the window's real size rather than the width size
+  class alone. The Fold's inner display in portrait is about 670dp wide — only
+  MEDIUM, but wide enough for two panes, which it previously did not get. A
+  wide, short landscape window now uses a navigation rail instead of a bottom
+  bar. Split screen and free-form windows follow the same rule.
+
+### Fixed
+
+- The quick-log sheet scrolls, so the keyboard cannot clip it in landscape.
+- The day navigator gives its date the space between the arrows instead of
+  pushing them off a narrow window.
+- The calendar grid is capped in width so its square cells do not grow enormous
+  on the inner display or in landscape.
+
+### Added
+
+- Unit tests covering the layout rule at the window sizes a Fold produces:
+  cover portrait and landscape, inner portrait and landscape, and split screen.
+
 ## 1.2.0
 
 ### Added
