@@ -39,6 +39,8 @@ import com.personal.fuel.ui.components.CircleIconButton
 import com.personal.fuel.ui.components.SectionLabel
 import com.personal.fuel.ui.theme.FuelTheme
 import com.personal.fuel.utilities.FuelFormat
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.rememberFuelHaptics
 import java.time.LocalDate
 
 /**
@@ -180,6 +182,7 @@ private fun DayCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val haptics = rememberFuelHaptics()
     val dayData = summary?.takeIf { it.hasEntries }
     val hasData = dayData != null
     val borderColor = when {
@@ -199,7 +202,10 @@ private fun DayCell(
             .clip(RoundedCornerShape(10.dp))
             .background(background)
             .border(1.dp, borderColor, RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick)
+            .clickable {
+                haptics.perform(FuelHaptic.Light)
+                onClick()
+            }
             .padding(5.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),

@@ -41,6 +41,8 @@ import com.personal.fuel.domain.model.FoodTemplate
 import com.personal.fuel.ui.navigation.FuelDestination
 import com.personal.fuel.ui.quicklog.QuickLogActivity
 import com.personal.fuel.utilities.FuelFormat
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.FuelVibration
 import java.time.LocalDate
 
 /**
@@ -172,12 +174,7 @@ private fun AddFoodButton(context: Context) {
             .background(FuelGlanceColors.accent)
             .cornerRadius(12.dp)
             .padding(vertical = 10.dp)
-            .clickable(
-                actionStartActivity(
-                    Intent(context, QuickLogActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            ),
+            .clickable(actionStartActivity(quickLogIntent(context))),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -229,6 +226,12 @@ private fun RecentFoodRow(template: FoodTemplate) {
     }
 }
 
+/** Opens the quick-log sheet, asking it to reproduce the button's haptic. */
+internal fun quickLogIntent(context: Context): Intent =
+    Intent(context, QuickLogActivity::class.java)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        .putExtra(QuickLogActivity.EXTRA_HAPTIC, true)
+
 /** Logs a previously eaten food to today straight from the widget. */
 class LogRecentFoodAction : ActionCallback {
 
@@ -238,6 +241,9 @@ class LogRecentFoodAction : ActionCallback {
         parameters: ActionParameters,
     ) {
         val name = parameters[NAME] ?: return
+        // Widgets draw in the launcher's process, so the confirmation has to
+        // come from the vibrator rather than from a View.
+        FuelVibration.perform(context, FuelHaptic.Confirm)
         // The repository refreshes every widget once the row is written.
         context.appContainer.repository.addEntry(
             FoodEntry(

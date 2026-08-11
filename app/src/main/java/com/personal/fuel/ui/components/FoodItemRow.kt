@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.personal.fuel.domain.model.FoodEntry
 import com.personal.fuel.ui.theme.FuelTheme
 import com.personal.fuel.utilities.FuelFormat
+import com.personal.fuel.utilities.FuelHaptic
 
 /**
  * One logged item. Tapping edit swaps the row for an inline editor, mirroring
@@ -69,12 +70,14 @@ fun FoodItemRow(
                 contentDescription = "Edit ${entry.name}",
                 onClick = onEdit,
                 size = 32.dp,
+                haptic = FuelHaptic.Press,
             )
             CircleIconButton(
                 icon = Icons.Outlined.Close,
                 contentDescription = "Delete ${entry.name}",
                 onClick = onDelete,
                 size = 32.dp,
+                haptic = FuelHaptic.Reject,
             )
         }
     }

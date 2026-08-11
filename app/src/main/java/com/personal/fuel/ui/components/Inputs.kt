@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.ripple
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.rememberFuelHaptics
 import com.personal.fuel.ui.theme.DmSansFamily
 import com.personal.fuel.ui.theme.FuelTheme
 
@@ -200,7 +202,9 @@ fun FuelButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    haptic: FuelHaptic = FuelHaptic.Confirm,
 ) {
+    val haptics = rememberFuelHaptics()
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(if (pressed) 0.98f else 1f, label = "buttonScale")
@@ -223,7 +227,10 @@ fun FuelButton(
                 interactionSource = interactionSource,
                 indication = ripple(color = FuelTheme.colors.onAccent),
                 enabled = enabled,
-                onClick = onClick,
+                onClick = {
+                    haptics.perform(haptic)
+                    onClick()
+                },
             )
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center,
@@ -245,14 +252,19 @@ fun CircleIconButton(
     modifier: Modifier = Modifier,
     size: Dp = 38.dp,
     tint: Color = FuelTheme.colors.textSecondary,
+    haptic: FuelHaptic = FuelHaptic.Light,
 ) {
+    val haptics = rememberFuelHaptics()
     Box(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, FuelTheme.colors.border, CircleShape)
-            .clickable(onClick = onClick),
+            .clickable {
+                haptics.perform(haptic)
+                onClick()
+            },
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -271,12 +283,17 @@ fun FuelTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
+    haptic: FuelHaptic = FuelHaptic.Press,
 ) {
+    val haptics = rememberFuelHaptics()
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .border(1.dp, FuelTheme.colors.border, RoundedCornerShape(10.dp))
-            .clickable(onClick = onClick)
+            .clickable {
+                haptics.perform(haptic)
+                onClick()
+            }
             .padding(contentPadding),
         contentAlignment = Alignment.Center,
     ) {

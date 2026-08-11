@@ -29,6 +29,8 @@ import com.personal.fuel.domain.model.ThemeMode
 import com.personal.fuel.ui.components.FuelCard
 import com.personal.fuel.ui.components.SectionLabel
 import com.personal.fuel.ui.theme.FuelTheme
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.rememberFuelHaptics
 
 @Composable
 fun SettingsScreen(
@@ -38,6 +40,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
+    val haptics = rememberFuelHaptics()
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -83,7 +86,10 @@ fun SettingsScreen(
                     }
                     Switch(
                         checked = settings.dynamicColor,
-                        onCheckedChange = onDynamicColorChange,
+                        onCheckedChange = {
+                            haptics.perform(FuelHaptic.Press)
+                            onDynamicColorChange(it)
+                        },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = FuelTheme.colors.onAccent,
                             checkedTrackColor = FuelTheme.colors.accent,
@@ -143,11 +149,15 @@ private fun ThemeChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val haptics = rememberFuelHaptics()
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(if (selected) FuelTheme.colors.accent else FuelTheme.colors.surface2)
-            .clickable(onClick = onClick)
+            .clickable {
+                haptics.perform(FuelHaptic.Press)
+                onClick()
+            }
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.Center,
     ) {

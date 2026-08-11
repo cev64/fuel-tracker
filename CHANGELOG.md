@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.2.0
+
+### Added
+
+- Haptic feedback on every button, in the app and in the widgets, built on a
+  four-level vocabulary (`FuelHaptic`): **Light** for navigation, day and month
+  arrows and calendar days; **Press** for controls such as the edit button,
+  theme chips and the dynamic-colour switch; **Confirm** when something is
+  written — logging food, saving an edit, one-tap quick add; **Reject** for
+  deleting an item or a submit refused for a missing name.
+- Widget buttons are felt too: the Quick Log widget's one-tap re-log vibrates a
+  Confirm directly, and the + buttons on the Macros and Quick Log widgets hand
+  a Press to the quick-log sheet, which fires it as it opens.
+
+### Changed
+
+- Haptics moved out of individual screens and into the shared button components,
+  so every button behaves the same way and nothing double-buzzes.
+
+### Notes
+
+- Adds the `VIBRATE` permission — normal, install-time, no runtime prompt. It is
+  needed only for the widget paths, where there is no `View` to route feedback
+  through. Text fields deliberately have no haptics.
+
 ## 1.1.0
 
 ### Added

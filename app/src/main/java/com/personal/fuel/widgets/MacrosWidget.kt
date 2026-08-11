@@ -1,7 +1,6 @@
 package com.personal.fuel.widgets
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -36,7 +35,6 @@ import androidx.glance.unit.ColorProvider
 import com.personal.fuel.appContainer
 import com.personal.fuel.domain.model.DaySummary
 import com.personal.fuel.ui.navigation.FuelDestination
-import com.personal.fuel.ui.quicklog.QuickLogActivity
 import com.personal.fuel.utilities.FuelFormat
 import java.time.LocalDate
 
@@ -165,12 +163,7 @@ private fun AddButton(context: Context, size: Dp) {
             .size(size)
             .background(FuelGlanceColors.accent)
             .cornerRadius(size / 2)
-            .clickable(
-                actionStartActivity(
-                    Intent(context, QuickLogActivity::class.java)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
-            ),
+            .clickable(actionStartActivity(quickLogIntent(context))),
         contentAlignment = Alignment.Center,
     ) {
         Text(

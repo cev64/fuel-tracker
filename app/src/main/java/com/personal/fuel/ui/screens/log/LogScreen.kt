@@ -27,8 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.personal.fuel.domain.model.FoodTemplate
@@ -40,6 +38,8 @@ import com.personal.fuel.ui.components.MacroFieldRow
 import com.personal.fuel.ui.components.SectionLabel
 import com.personal.fuel.ui.theme.FuelTheme
 import com.personal.fuel.utilities.FuelFormat
+import com.personal.fuel.utilities.FuelHaptic
+import com.personal.fuel.utilities.rememberFuelHaptics
 import java.time.LocalDate
 
 /**
@@ -65,8 +65,10 @@ fun LogScreen(
     var fiber by rememberSaveable { mutableStateOf("") }
 
     val focusManager = LocalFocusManager.current
-    val haptics = LocalHapticFeedback.current
+    val haptics = rememberFuelHaptics()
 
+    // The button itself gives the Confirm haptic on press; a rejected submit
+    // gets the distinct Reject pattern on top of it.
     val submit = {
         val added = onAdd(
             name,
@@ -75,12 +77,13 @@ fun LogScreen(
             fiber.toDoubleOrNull() ?: 0.0,
         )
         if (added) {
-            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             name = ""
             calories = ""
             protein = ""
             fiber = ""
             focusManager.clearFocus()
+        } else {
+            haptics.perform(FuelHaptic.Reject)
         }
     }
 
@@ -128,10 +131,7 @@ fun LogScreen(
             FuelCard(contentPadding = PaddingValues(16.dp)) {
                 SectionLabel("Quick add")
                 Spacer(Modifier.height(12.dp))
-                QuickAddChips(recentFoods = recentFoods, onQuickAdd = {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onQuickAdd(it)
-                })
+                QuickAddChips(recentFoods = recentFoods, onQuickAdd = onQuickAdd)
             }
         }
     }
@@ -144,6 +144,7 @@ private fun QuickAddChips(
     onQuickAdd: (FoodTemplate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val haptics = rememberFuelHaptics()
     FlowRow(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -155,7 +156,10 @@ private fun QuickAddChips(
                     .clip(RoundedCornerShape(10.dp))
                     .background(FuelTheme.colors.surface2)
                     .border(1.dp, FuelTheme.colors.border, RoundedCornerShape(10.dp))
-                    .clickable { onQuickAdd(template) }
+                    .clickable {
+                        haptics.perform(FuelHaptic.Confirm)
+                        onQuickAdd(template)
+                    }
                     .padding(horizontal = 12.dp, vertical = 9.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
