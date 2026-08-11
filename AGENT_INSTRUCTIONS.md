@@ -28,7 +28,7 @@ widget), check the day's totals and deficit, and review the month.
 **Data:** entirely local. Room for the log and burn values, DataStore for
 appearance preferences. No network, no permissions.
 
-**Widgets:** Quick Log and Today, both Glance, both resizable.
+**Widgets:** Macros (compact), Quick Log and Today — all Glance, all resizable.
 
 ## Conventions
 
@@ -62,7 +62,8 @@ Every new screen must answer all three, as the master instructions require:
 ## Widgets
 
 - Glance only. Widgets render a snapshot in `provideGlance`; they do not observe
-  flows. `GlanceWidgetNotifier` redraws them after every write.
+  flows. `GlanceWidgetNotifier` redraws them after every write — add any new
+  widget to it, or it will silently go stale.
 - App widgets cannot host text input. Anything requiring typing opens
   `QuickLogActivity` over the home screen instead of the full app.
 - Widget colours are fixed dark (`FuelGlanceColors`) — widgets sit on the

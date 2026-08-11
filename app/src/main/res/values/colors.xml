@@ -5,5 +5,6 @@
     <color name="fuel_text_primary">#F0F0F0</color>
     <color name="fuel_text_secondary">#8A8A8A</color>
     <color name="fuel_calories">#FF5C5C</color>
+    <color name="fuel_protein">#5CB8FF</color>
     <color name="transparent">#00000000</color>
 </resources>

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0
+
+### Added
+
+- **Fuel · Macros** home-screen widget — a compact single-row widget showing
+  today's calories, protein and fiber with a round plus button that opens the
+  add-food sheet. Tapping the numbers opens the Today screen. Keeps all three
+  figures down to roughly 2x1 by dropping the captions first.
+
 ## 1.0.0
 
 The first native Android version of Fuel, ported from the PWA.

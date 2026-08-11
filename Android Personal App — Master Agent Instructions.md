@@ -1081,14 +1081,15 @@ location, biometrics.
 
 ## Widgets
 
+- **Fuel · Macros** — compact single row: today's calories, protein and fiber
+  with a plus button that opens the quick-log sheet.
 - **Fuel · Quick Log** — the Log screen on the home screen: today's totals, an
   Add food button that opens the quick-log sheet, and one-tap re-logging of
   recent foods.
 - **Fuel · Today** — today's calories, protein, fiber, burned and deficit, plus
   recent items at larger sizes.
 
-Both use `SizeMode.Responsive` across small/medium/large and deep-link into the
-app. Android does not allow text input inside a widget, so typing always happens
+All three use `SizeMode.Responsive` and deep-link into the app. Android does not allow text input inside a widget, so typing always happens
 in the quick-log sheet.
 
 ## Notifications
