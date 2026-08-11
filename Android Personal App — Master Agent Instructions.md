@@ -2,7 +2,7 @@
 
 ## Project Goal
 
-Build a polished, native Android application intended primarily for my personal use on a **Samsung Galaxy Z Fold 8**.
+Build a polished, native Android application intended primarily for my personal use on a **Samsung Galaxy Z Fold 8 Ultra**.
 
 The exact purpose of the application may evolve over time. Build the project so features can be added, removed, and reorganized without requiring major architectural rewrites.
 
@@ -10,7 +10,7 @@ This is NOT intended to be a generic cross-platform app.
 
 Prioritize:
 
-1. Excellent Galaxy Z Fold 8 support
+1. Excellent Galaxy Z Fold 8 Ultra support
 2. Native Android functionality
 3. Modern UI
 4. Performance
@@ -96,9 +96,9 @@ UI composables should generally not directly perform networking, database operat
 
 ---
 
-# Galaxy Z Fold 8 Design Philosophy
+# Galaxy Z Fold 8 Ultra Design Philosophy
 
-This application should be designed specifically with the Galaxy Z Fold form factor in mind.
+This application should be designed specifically with the Galaxy Z Fold 8 Ultra form factor in mind.
 
 Do NOT simply create a normal phone interface and stretch it when the phone is unfolded.
 
@@ -790,7 +790,7 @@ GitHub Actions validates project
 ↓
 APK generated
 ↓
-APK downloaded on Galaxy Z Fold 8
+APK downloaded on Galaxy Z Fold 8 Ultra
 ↓
 APK installed
 ↓
@@ -1026,7 +1026,7 @@ Therefore optimize for:
 
 - my workflows
 - my preferences
-- my Galaxy Z Fold 8
+- my Galaxy Z Fold 8 Ultra
 - speed of iteration
 - useful Android integration
 
