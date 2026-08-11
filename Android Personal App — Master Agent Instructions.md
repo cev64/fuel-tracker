@@ -1040,24 +1040,76 @@ The Fold 8 should receive the best experience while the architecture remains tec
 
 # Current Application Idea
 
-TBD
+**Fuel** — a personal calorie, protein, fiber and calorie-deficit tracker.
 
-Do not invent the core purpose of the application.
+Ported from an existing single-page PWA that remains in this repository
+(`index.html`). The PWA is both the fallback and the design reference.
 
-When an application concept is chosen, add a section here describing:
+## Purpose
 
-- purpose
-- primary user workflow
-- major screens
-- data sources
-- Android integrations
-- widgets
-- notifications
-- Fold-specific behavior
+Log what I eat during the day, record what I burned, and see the resulting
+deficit — per day and per week.
+
+## Primary user workflow
+
+Log food (most often from the home-screen widget, without opening the app)
+→ check today's totals and deficit → review the month.
+
+## Major screens
+
+- **Log** — add a food item; re-log a recent food with one tap.
+- **Today** — day navigation, macro totals, editable burned kcal, deficit,
+  the day's items with inline edit/delete, and an add form for that day.
+- **Calendar** — month grid with per-day calories and macro dots; weekly
+  deficit totals.
+- **Settings** — theme, dynamic colour, version.
+
+## Data sources
+
+Entirely local and offline. Room stores food entries and per-day burn values;
+DataStore stores appearance preferences. No network access and no permissions.
+
+## Android integrations
+
+App widgets (Glance), deep links (`fuel://log`, `fuel://today`,
+`fuel://calendar`), a floating quick-log activity launched from a widget,
+haptics on log/save/delete, WorkManager for the daily widget refresh, native
+splash screen, adaptive/monochrome launcher icon.
+
+Not used yet: notifications, Quick Settings tiles, share sheet, camera,
+location, biometrics.
+
+## Widgets
+
+- **Fuel · Quick Log** — the Log screen on the home screen: today's totals, an
+  Add food button that opens the quick-log sheet, and one-tap re-logging of
+  recent foods.
+- **Fuel · Today** — today's calories, protein, fiber, burned and deficit, plus
+  recent items at larger sizes.
+
+Both use `SizeMode.Responsive` across small/medium/large and deep-link into the
+app. Android does not allow text input inside a widget, so typing always happens
+in the quick-log sheet.
+
+## Notifications
+
+None yet. Reminders are a candidate feature, not implemented.
+
+## Fold-specific behavior
+
+Cover screen: one column, bottom navigation. Unfolded: navigation rail plus two
+panes (form beside live log; totals beside item list; month grid beside the
+selected day). Tabletop posture stacks the panes. The selected day, visible
+month and in-progress edit live in one activity-scoped ViewModel, so folding
+rearranges the layout without resetting anything.
 
 ---
 
 # Initial Project Milestone
+
+**Status: complete as of 1.0.0** — the foundation below exists and builds. What
+remains unverified is on-device behaviour (see README "Known limitations"); the
+project has never been installed on hardware from this environment.
 
 Until an application concept is chosen, the initial project should establish a clean foundation capable of supporting future features.
 
