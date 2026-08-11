@@ -100,6 +100,13 @@ against the window sizes a Fold produces. Change them there, not inline.
   `LocalSize`, capping against both width and height so nothing overflows.
 - Check a new widget at 2x1, 4x1, 2x2 and 4x2 before calling it done.
 
+## The database
+
+Room schemas are exported to `app/schemas` and the database has no destructive
+fallback, deliberately: a schema change without a migration must fail loudly in
+testing rather than silently wipe the user's log on their phone. Any change to
+an entity needs a version bump and a real `Migration`.
+
 ## Signing
 
 Every APK, debug included, must be signed with the persistent keystore. An
