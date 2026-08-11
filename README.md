@@ -50,14 +50,21 @@ Three home-screen widgets, all built with Jetpack Glance, all resizable:
 
 | Widget | Size | What it does |
 | --- | --- | --- |
-| **Fuel · Macros** | 3x1 | The compact one. Today's calories, protein and fiber, plus a round **+** button that opens the add-food sheet. Tapping the numbers opens Today. |
+| **Fuel · Macros** | 3x1 to 4x3 | The compact one. Today's calories, protein and fiber, plus a round **+** button that opens the add-food sheet. Tapping the numbers opens Today. |
 | **Fuel · Quick Log** | 4x2 | The Log screen on the home screen. Today's totals, an **Add food** button that opens a quick-log sheet over the home screen, and recently logged foods that are re-logged to today with a single tap. |
 | **Fuel · Today** | 4x2 | Today's calories, protein, fiber, burned and deficit. At larger sizes it also lists the most recent items logged. Tapping it opens the Today screen. |
 
-All three widgets resize across three breakpoints and show progressively more
-information as they grow. Macros keeps all three numbers down to roughly 2x1,
-dropping the captions before it drops any figure. Widget taps deep-link into the
-relevant screen rather than just opening the app.
+Quick Log and Today resize across three breakpoints, showing progressively more
+information as they grow.
+
+Macros is sized from the actual cell it sits in rather than from fixed
+breakpoints, so it fills whatever space it is given. One row tall, it puts the
+three figures in a row beside the button and drops the captions before it drops
+any figure. Two rows or taller, it switches layout: calories large on their own
+line with the button beside them, protein and fiber underneath — roughly double
+the type size of the single-row form.
+
+Widget taps deep-link into the relevant screen rather than just opening the app.
 
 **A note on typing in widgets:** Android does not allow text input inside an app
 widget — a widget renders through `RemoteViews`, which has no editable field. So
@@ -102,12 +109,24 @@ Writes go back through the ViewModel. Dependencies are wired by hand in
 
 Layout follows the window size class, not the device model:
 
-- **Compact (cover screen)** — single column, bottom navigation, large targets.
-- **Medium** — navigation rail, single column.
-- **Expanded (unfolded)** — navigation rail plus two panes: the Log form beside
-  the live day log; the day's totals beside its item list; the month grid beside
-  the selected day and the weekly deficits.
+Layout follows the window's actual size (see `ui/navigation/FuelLayout.kt`)
+rather than the width size class alone, because both interesting Fold cases sit
+awkwardly across the class boundaries — the inner display in portrait is around
+670dp wide, which is only MEDIUM, yet holds two panes comfortably.
+
+- **Cover screen, portrait** — single column, bottom navigation, large targets.
+- **Cover screen, landscape** — the bottom bar becomes a rail, since a short
+  window cannot spare the height, and the content splits into two panes.
+- **Inner display, portrait and landscape** — navigation rail plus two panes:
+  the Log form beside the live day log; the day's totals beside its item list;
+  the month grid beside the selected day and the weekly deficits.
+- **Split screen / free-form** — the same rule applies to the window, so a
+  half-width window falls back to the single-column layout.
 - **Tabletop posture** — panes stack vertically instead of side by side.
+
+The calendar grid is capped in width so its square cells stay a sensible size on
+a wide window, and the quick-log sheet scrolls when the keyboard leaves it less
+height than it needs in landscape.
 
 Folding and unfolding never restarts the app or resets state: the activity
 handles the configuration change itself, and the selected day, visible month and
@@ -143,11 +162,11 @@ Day-to-day, let GitHub build it:
 For a versioned build, tag a release:
 
 ```bash
-git tag v1.2.0 && git push origin v1.2.0
+git tag v1.3.0 && git push origin v1.3.0
 ```
 
 The **Android release** workflow builds, signs and verifies a release APK, then
-attaches `fuel-v1.2.0.apk` to the GitHub release. Bump `versionCode` and
+attaches `fuel-v1.3.0.apk` to the GitHub release. Bump `versionCode` and
 `versionName` in `app/build.gradle.kts` before tagging.
 
 ## How GitHub Actions works

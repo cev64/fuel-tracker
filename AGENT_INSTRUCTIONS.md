@@ -66,11 +66,15 @@ appearance preferences. No network, no permissions.
 
 Every new screen must answer all three, as the master instructions require:
 
-- **Compact** — how it looks on the cover screen.
+- **Compact** — how it looks on the cover screen, in both orientations.
 - **Expanded** — what extra information fills the inner display. Add panes, do
   not scale everything up.
-- **Transition** — what happens when the device folds mid-use. State lives in
-  the ViewModel, so the answer should be "the layout changes and nothing else".
+- **Transition** — what happens when the device folds or rotates mid-use. State
+  lives in the ViewModel, so the answer should be "the layout changes and
+  nothing else".
+
+Layout thresholds live in `ui/navigation/FuelLayout.kt` and are unit tested
+against the window sizes a Fold produces. Change them there, not inline.
 
 ## Widgets
 
@@ -81,8 +85,11 @@ Every new screen must answer all three, as the master instructions require:
   `QuickLogActivity` over the home screen instead of the full app.
 - Widget colours are fixed dark (`FuelGlanceColors`) — widgets sit on the
   wallpaper, not inside the app's theme.
-- Use `SizeMode.Responsive` with the breakpoints in `FuelWidgetSizes` and show
-  more content as the widget grows; never let content overflow at the small size.
+- `SizeMode.Responsive` with the breakpoints in `FuelWidgetSizes` suits widgets
+  with a few distinct states. Where the type should scale continuously with the
+  cell — as in `MacrosWidget` — use `SizeMode.Exact` and derive sizes from
+  `LocalSize`, capping against both width and height so nothing overflows.
+- Check a new widget at 2x1, 4x1, 2x2 and 4x2 before calling it done.
 
 ## Before finishing a change
 

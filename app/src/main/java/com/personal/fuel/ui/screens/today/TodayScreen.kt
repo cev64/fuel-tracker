@@ -154,7 +154,12 @@ private fun DayNavigator(
             contentDescription = "Previous day",
             onClick = { onShiftDay(-1) },
         )
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(
                 text = FuelFormat.dayTitle(state.date),
                 style = MaterialTheme.typography.headlineSmall,

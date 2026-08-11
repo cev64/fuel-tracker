@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -41,13 +42,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.window.core.layout.WindowWidthSizeClass
 import com.personal.fuel.ui.components.FuelCard
 import com.personal.fuel.ui.components.FuelToastHost
 import com.personal.fuel.ui.components.SectionLabel
 import com.personal.fuel.ui.components.TotalsStrip
 import com.personal.fuel.ui.components.Wordmark
 import com.personal.fuel.ui.navigation.FuelDestination
+import com.personal.fuel.ui.navigation.FuelLayout
 import com.personal.fuel.ui.screens.calendar.CalendarScreen
 import com.personal.fuel.ui.screens.calendar.WeeklyDeficits
 import com.personal.fuel.ui.screens.log.LogScreen
@@ -88,10 +89,15 @@ fun FuelRoot(
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
 
     val adaptiveInfo = currentWindowAdaptiveInfo()
-    val widthClass = adaptiveInfo.windowSizeClass.windowWidthSizeClass
-    val useRail = widthClass != WindowWidthSizeClass.COMPACT
-    val twoPane = widthClass == WindowWidthSizeClass.EXPANDED
     val tabletop = adaptiveInfo.windowPosture.isTabletop
+
+    // See FuelLayout for why this follows the window size rather than the width
+    // size class. The configuration updates on rotation and on folding without
+    // the activity restarting, so this recomposes in place.
+    val configuration = LocalConfiguration.current
+    val layout = FuelLayout.forWindow(configuration.screenWidthDp, configuration.screenHeightDp)
+    val useRail = layout.useRail
+    val twoPane = layout.twoPane
 
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = FuelDestination.fromRoute(backStackEntry?.destination?.route)
