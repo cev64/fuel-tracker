@@ -26,6 +26,7 @@ import androidx.glance.unit.ColorProvider
 import androidx.compose.runtime.Composable
 import androidx.glance.appwidget.action.actionStartActivity
 import com.personal.fuel.MainActivity
+import com.personal.fuel.domain.model.WidgetBackground
 import com.personal.fuel.ui.navigation.FuelDestination
 
 /**
@@ -39,6 +40,16 @@ import com.personal.fuel.ui.navigation.FuelDestination
 object FuelGlanceColors {
     val background = ColorProvider(Color(0xFF141414))
     val surface = ColorProvider(Color(0xFF1F1F1F))
+
+    /**
+     * Transparent mode keeps a light scrim rather than nothing at all: over a
+     * bright or busy wallpaper, unbacked figures become unreadable, and the
+     * rounded panel is what makes the widget read as one object.
+     */
+    val backgroundTransparent = ColorProvider(Color(0x73000000))
+    val surfaceTransparent = ColorProvider(Color(0x26FFFFFF))
+    val textSecondaryTransparent = ColorProvider(Color(0xD9FFFFFF))
+
     val accent = ColorProvider(Color(0xFFC8F060))
     val onAccent = ColorProvider(Color(0xFF0F0F0F))
     val textPrimary = ColorProvider(Color(0xFFF0F0F0))
@@ -48,6 +59,40 @@ object FuelGlanceColors {
     val protein = ColorProvider(Color(0xFF5CB8FF))
     val fiber = ColorProvider(Color(0xFFC8F060))
     val burn = ColorProvider(Color(0xFFFFAA5C))
+
+    /**
+     * Unfilled part of a progress ring, as a raw colour for the canvas.
+     *
+     * On the solid panel a faint white track reads as "empty". Over a wallpaper
+     * a white track turns bright and starts competing with the coloured arc, so
+     * transparent mode darkens it instead of lightening it.
+     */
+    const val TRACK_ON_SOLID = 0x1FFFFFFF
+    const val TRACK_ON_TRANSPARENT = 0x4D000000.toInt()
+}
+
+/** Panel colour for the chosen widget background. */
+fun WidgetBackground.panel(): ColorProvider = when (this) {
+    WidgetBackground.SOLID -> FuelGlanceColors.background
+    WidgetBackground.TRANSPARENT -> FuelGlanceColors.backgroundTransparent
+}
+
+/** Colour for rows and chips drawn inside the panel. */
+fun WidgetBackground.rowSurface(): ColorProvider = when (this) {
+    WidgetBackground.SOLID -> FuelGlanceColors.surface
+    WidgetBackground.TRANSPARENT -> FuelGlanceColors.surfaceTransparent
+}
+
+/** Captions need more weight once a wallpaper can show through behind them. */
+fun WidgetBackground.captionColor(): ColorProvider = when (this) {
+    WidgetBackground.SOLID -> FuelGlanceColors.textSecondary
+    WidgetBackground.TRANSPARENT -> FuelGlanceColors.textSecondaryTransparent
+}
+
+/** Ring track. See TRACK_ON_TRANSPARENT for why this darkens rather than lightens. */
+fun WidgetBackground.ringTrack(): Int = when (this) {
+    WidgetBackground.SOLID -> FuelGlanceColors.TRACK_ON_SOLID
+    WidgetBackground.TRANSPARENT -> FuelGlanceColors.TRACK_ON_TRANSPARENT
 }
 
 object FuelWidgetSizes {
@@ -71,16 +116,17 @@ fun openAppAction(context: Context, destination: FuelDestination): Action =
         }
     )
 
-/** The rounded dark panel every Fuel widget sits on. */
+/** The rounded panel every Fuel widget sits on. */
 @Composable
 fun FuelWidgetSurface(
     modifier: GlanceModifier = GlanceModifier,
     onClick: Action? = null,
     contentPadding: Dp = 14.dp,
+    background: WidgetBackground = WidgetBackground.SOLID,
     content: @Composable () -> Unit,
 ) {
     val base = modifier
-        .background(FuelGlanceColors.background)
+        .background(background.panel())
         .cornerRadius(24.dp)
         .padding(contentPadding)
     Box(modifier = if (onClick != null) base.clickable(onClick) else base) {

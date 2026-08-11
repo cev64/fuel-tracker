@@ -11,8 +11,9 @@ enum class ThemeMode {
     }
 }
 
-/** User preferences that affect how the app is drawn. */
+/** User preferences that affect how the app and its widgets are drawn. */
 data class AppearanceSettings(
     val themeMode: ThemeMode = ThemeMode.DARK,
     val dynamicColor: Boolean = false,
+    val widgetBackground: WidgetBackground = WidgetBackground.SOLID,
 )

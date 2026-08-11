@@ -10,4 +10,7 @@
 
     <string name="widget_macros_label">Fuel · Macros</string>
     <string name="widget_macros_description">Today\'s calories, protein and fiber, with a plus button that opens the add-food sheet.</string>
+
+    <string name="widget_rings_label">Fuel · Rings</string>
+    <string name="widget_rings_description">Today\'s calories, protein and fiber as progress rings against your daily goals, with a quick-add button.</string>
 </resources>

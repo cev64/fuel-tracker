@@ -25,11 +25,15 @@ class AppContainer(context: Context) {
 
     private val database: FuelDatabase by lazy { FuelDatabase.create(appContext) }
 
+    private val widgetNotifier = GlanceWidgetNotifier(appContext)
+
     val repository: FuelRepository by lazy {
-        FuelRepositoryImpl(database.fuelDao(), GlanceWidgetNotifier(appContext))
+        FuelRepositoryImpl(database.fuelDao(), widgetNotifier)
     }
 
-    val settingsRepository: SettingsRepository by lazy { SettingsRepository(appContext) }
+    val settingsRepository: SettingsRepository by lazy {
+        SettingsRepository(appContext, widgetNotifier)
+    }
 
     /** For work that must outlive a screen, such as widget-triggered writes. */
     val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)

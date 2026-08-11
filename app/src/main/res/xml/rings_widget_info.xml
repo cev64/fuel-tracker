@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedAttribute"
+    android:description="@string/widget_rings_description"
+    android:initialLayout="@layout/widget_rings_preview"
+    android:minHeight="110dp"
+    android:minResizeHeight="100dp"
+    android:minResizeWidth="250dp"
+    android:minWidth="300dp"
+    android:maxResizeHeight="360dp"
+    android:maxResizeWidth="600dp"
+    android:previewLayout="@layout/widget_rings_preview"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="2"
+    android:targetCellWidth="4"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

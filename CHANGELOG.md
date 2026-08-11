@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.4.0
+
+### Added
+
+- **Fuel · Rings** home-screen widget — calories, protein and fiber as progress
+  rings against daily goals, with the quick-add button. Overshooting a goal
+  starts a second, lighter lap rather than sitting at full. From roughly 4x3 up
+  it switches layout: bigger rings, a burned/deficit line, and a full-width
+  **+ Add food** button instead of the round one.
+- **Daily goals** for calories, protein and fiber, set in Settings and stored in
+  DataStore. These are what the rings fill against; setting one to 0 leaves that
+  ring untracked rather than dividing by nothing. Defaults are 2,000 kcal,
+  150g protein, 30g fiber.
+- **Widget style** setting: Solid or Transparent, applied to all four widgets.
+  Transparent keeps a light scrim and darkens the ring track instead of
+  lightening it, so figures stay readable over a bright wallpaper.
+- Unit tests for ring progress, including the over-goal lap, the two-lap ceiling
+  and an untracked (zero) goal.
+
+### Notes
+
+- Rings are drawn to a bitmap and handed to Glance's `Image`: widgets render
+  through `RemoteViews`, which has no canvas. Bitmaps are capped at 200px and
+  scaled, keeping the RemoteViews payload well inside its size limit.
+
 ## 1.3.0
 
 ### Changed

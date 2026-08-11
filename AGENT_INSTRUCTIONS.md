@@ -28,7 +28,8 @@ widget), check the day's totals and deficit, and review the month.
 **Data:** entirely local. Room for the log and burn values, DataStore for
 appearance preferences. No network, no permissions.
 
-**Widgets:** Macros (compact), Quick Log and Today — all Glance, all resizable.
+**Widgets:** Rings (goals), Macros (compact), Quick Log and Today — all Glance,
+all resizable.
 
 ## Conventions
 
@@ -83,8 +84,16 @@ against the window sizes a Fold produces. Change them there, not inline.
   widget to it, or it will silently go stale.
 - App widgets cannot host text input. Anything requiring typing opens
   `QuickLogActivity` over the home screen instead of the full app.
-- Widget colours are fixed dark (`FuelGlanceColors`) — widgets sit on the
-  wallpaper, not inside the app's theme.
+- Widget colours come from `FuelGlanceColors`, not the app theme — widgets sit
+  on the wallpaper. Respect the `WidgetBackground` setting: use
+  `background.panel()`, `rowSurface()`, `captionColor()` and `ringTrack()`
+  rather than hardcoding, and check any new widget against a light wallpaper in
+  transparent mode.
+- Glance has no canvas. Anything that is not a box, row or text must be drawn to
+  a bitmap (`RingRenderer`) and passed to `Image`. Keep bitmaps small — they
+  travel inside the size-limited RemoteViews payload.
+- Text is in sp and widget geometry is in dp, so a figure placed inside a fixed
+  shape must be divided by the system font scale or it will clip.
 - `SizeMode.Responsive` with the breakpoints in `FuelWidgetSizes` suits widgets
   with a few distinct states. Where the type should scale continuously with the
   cell — as in `MacrosWidget` — use `SizeMode.Exact` and derive sizes from

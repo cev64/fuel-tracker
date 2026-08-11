@@ -17,6 +17,7 @@ class GlanceWidgetNotifier(private val context: Context) : WidgetNotifier {
             QuickLogWidget().updateAll(context)
             TodaySummaryWidget().updateAll(context)
             MacrosWidget().updateAll(context)
+            RingsWidget().updateAll(context)
         }.onFailure { error ->
             // A failed widget refresh must never take down the write that
             // triggered it.

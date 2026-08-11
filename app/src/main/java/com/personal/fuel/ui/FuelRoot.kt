@@ -87,6 +87,7 @@ fun FuelRoot(
     val recentFoods by viewModel.recentFoods.collectAsStateWithLifecycle()
     val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val goals by settingsViewModel.goals.collectAsStateWithLifecycle()
 
     val adaptiveInfo = currentWindowAdaptiveInfo()
     val tabletop = adaptiveInfo.windowPosture.isTabletop
@@ -272,8 +273,11 @@ fun FuelRoot(
                         composable(FuelDestination.Settings.route) {
                             SettingsScreen(
                                 settings = settings,
+                                goals = goals,
                                 onThemeModeChange = settingsViewModel::setThemeMode,
                                 onDynamicColorChange = settingsViewModel::setDynamicColor,
+                                onWidgetBackgroundChange = settingsViewModel::setWidgetBackground,
+                                onGoalsChange = settingsViewModel::setGoals,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .widthIn(max = 640.dp),
